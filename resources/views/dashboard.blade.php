@@ -24,7 +24,7 @@
                     </div>
                     <div class="stat-card__content">
                         <p class="stat-card__label">Total Tasks</p>
-                        <p class="stat-card__value">{{ $totalTasks ?? 24 }}</p>
+                        <p class="stat-card__value">{{ $stats['total'] }}</p>
                         <p class="stat-card__description">All your tasks</p>
                     </div>
                 </div>
@@ -38,7 +38,7 @@
                     </div>
                     <div class="stat-card__content">
                         <p class="stat-card__label">To Do</p>
-                        <p class="stat-card__value">{{ $todoCount ?? 8 }}</p>
+                        <p class="stat-card__value">{{ $stats['todo'] }}</p>
                         <p class="stat-card__description">Pending</p>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
                     </div>
                     <div class="stat-card__content">
                         <p class="stat-card__label">In Progress</p>
-                        <p class="stat-card__value">{{ $inProgressCount ?? 6 }}</p>
+                        <p class="stat-card__value">{{ $stats['in_progress'] }}</p>
                         <p class="stat-card__description">In progress</p>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
                     </div>
                     <div class="stat-card__content">
                         <p class="stat-card__label">Done</p>
-                        <p class="stat-card__value">{{ $doneCount ?? 10 }}</p>
+                        <p class="stat-card__value">{{ $stats['done'] }}</p>
                         <p class="stat-card__description">Completed</p>
                     </div>
                 </div>
@@ -80,7 +80,7 @@
                     </div>
                     <div class="stat-card__content">
                         <p class="stat-card__label">Overdue</p>
-                        <p class="stat-card__value">{{ $overdueCount ?? 2 }}</p>
+                        <p class="stat-card__value">{{ $stats['overdue'] }}</p>
                         <p class="stat-card__description">Past deadline</p>
                     </div>
                 </div>
@@ -94,7 +94,7 @@
                     </div>
                     <div class="stat-card__content">
                         <p class="stat-card__label">Completion</p>
-                        <p class="stat-card__value">{{ $completionRate ?? 42 }}%</p>
+                        <p class="stat-card__value">{{ $stats['total'] }}%</p>
                         <p class="stat-card__description">Progress rate</p>
                     </div>
                 </div>
@@ -125,58 +125,37 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr class="table-body-row">
-                            <td class="table-cell font-semibold">Complete Project Documentation</td>
-                            <td class="table-cell text-sm">Finish all technical documentation</td>
-                            <td class="table-cell"><span class="badge badge--high">High</span></td>
-                            <td class="table-cell"><span class="badge badge--warning">In Progress</span></td>
-                            <td class="table-cell text-sm">Feb 15</td>
-                            <td class="table-cell">
-                                <div class="action-buttons">
-                                    <button class="action-btn action-btn--edit" title="Edit">✎</button>
-                                    <button class="action-btn action-btn--delete" title="Delete">✕</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="table-body-row">
-                            <td class="table-cell font-semibold">Review Code Changes</td>
-                            <td class="table-cell text-sm">Review pull requests from team</td>
-                            <td class="table-cell"><span class="badge badge--medium">Medium</span></td>
-                            <td class="table-cell"><span class="badge badge--info">To Do</span></td>
-                            <td class="table-cell text-sm">Feb 10</td>
-                            <td class="table-cell">
-                                <div class="action-buttons">
-                                    <button class="action-btn action-btn--edit" title="Edit">✎</button>
-                                    <button class="action-btn action-btn--delete" title="Delete">✕</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="table-body-row table-body-row--completed">
-                            <td class="table-cell font-semibold line-through text-gray-500 dark:text-gray-400">Deploy to Production</td>
-                            <td class="table-cell text-sm">Push version 2.1.0 to production</td>
-                            <td class="table-cell"><span class="badge badge--high">High</span></td>
-                            <td class="table-cell"><span class="badge badge--success">Done</span></td>
-                            <td class="table-cell text-sm">Feb 05</td>
-                            <td class="table-cell">
-                                <div class="action-buttons">
-                                    <button class="action-btn action-btn--edit" title="Edit">✎</button>
-                                    <button class="action-btn action-btn--delete" title="Delete">✕</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="table-body-row table-body-row--overdue">
-                            <td class="table-cell font-semibold">Update Dependencies</td>
-                            <td class="table-cell text-sm">Update npm packages to latest</td>
-                            <td class="table-cell"><span class="badge badge--low">Low</span></td>
-                            <td class="table-cell"><span class="badge badge--danger">Overdue</span></td>
-                            <td class="table-cell text-sm text-red-600 dark:text-red-400 font-semibold">Feb 01</td>
-                            <td class="table-cell">
-                                <div class="action-buttons">
-                                    <button class="action-btn action-btn--edit" title="Edit">✎</button>
-                                    <button class="action-btn action-btn--delete" title="Delete">✕</button>
-                                </div>
-                            </td>
-                        </tr>
+                        <tbody>
+                        @forelse($recentTasks as $task)
+                            <tr class="table-body-row {{ $task->status == 'done' ? 'table-body-row--completed' : '' }}">
+                                <td class="table-cell font-semibold {{ $task->status == 'done' ? 'line-through text-gray-500 dark:text-gray-400' : '' }}">
+                                    {{ $task->title }}
+                                </td>
+                                <td class="table-cell text-sm">{{ $task->description }}</td>
+                                <td class="table-cell">
+                <span class="badge badge--{{ $task->priority == 'high' ? 'high' : ($task->priority == 'medium' ? 'medium' : 'low') }}">
+                    {{ ucfirst($task->priority) }}
+                </span>
+                                </td>
+                                <td class="table-cell">
+                <span class="badge badge--{{ $task->status == 'done' ? 'success' : ($task->status == 'in_progress' ? 'warning' : 'info') }}">
+                    {{ ucfirst(str_replace('_', ' ', $task->status)) }}
+                </span>
+                                </td>
+                                <td class="table-cell text-sm">{{ $task->deadline ? \Carbon\Carbon::parse($task->deadline)->format('M d') : 'No deadline' }}</td>
+                                <td class="table-cell">
+                                    <div class="action-buttons">
+                                        <button class="action-btn action-btn--edit" title="Edit">✎</button>
+                                        <button class="action-btn action-btn--delete" title="Delete">✕</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="table-cell text-center text-gray-500">No tasks found</td>
+                            </tr>
+                        @endforelse
+                        </tbody>
                         </tbody>
                     </table>
                 </div>
@@ -207,12 +186,12 @@
                         <tbody>
                         <tr class="table-body-row">
                             <td class="table-cell"><span class="badge badge--high">High Priority</span></td>
-                            <td class="table-cell font-bold text-lg">8</td>
-                            <td class="table-cell text-green-600 dark:text-green-400 font-semibold">3</td>
-                            <td class="table-cell text-orange-600 dark:text-orange-400 font-semibold">5</td>
+                            <td class="table-cell font-bold text-lg">{{ $highPriorityTasks['total'] }}</td>
+                            <td class="table-cell text-green-600 dark:text-green-400 font-semibold">{{ $highPriorityTasks['completed'] }}</td>
+                            <td class="table-cell text-orange-600 dark:text-orange-400 font-semibold">{{ $highPriorityTasks['pending'] }}</td>
                             <td class="table-cell">
                                 <div class="progress-bar">
-                                    <div class="progress-bar__fill" style="width: 37.5%"></div>
+                                    <div class="progress-bar__fill" style="width: {{ $highPriorityTasks['total'] > 0 ? round(($highPriorityTasks['completed'] / $highPriorityTasks['total']) * 100) : 0 }}%"></div>
                                 </div>
                             </td>
                             <td class="table-cell">
@@ -235,12 +214,12 @@
                         </tr>
                         <tr class="table-body-row">
                             <td class="table-cell"><span class="badge badge--low">Low Priority</span></td>
-                            <td class="table-cell font-bold text-lg">6</td>
-                            <td class="table-cell text-green-600 dark:text-green-400 font-semibold">2</td>
-                            <td class="table-cell text-orange-600 dark:text-orange-400 font-semibold">4</td>
+                            <td class="table-cell font-bold text-lg">{{ $lowPriorityTasks['total'] }}</td>
+                            <td class="table-cell text-green-600 dark:text-green-400 font-semibold">{{ $lowPriorityTasks['completed'] }}</td>
+                            <td class="table-cell text-orange-600 dark:text-orange-400 font-semibold">{{ $lowPriorityTasks['pending'] }}</td>
                             <td class="table-cell">
                                 <div class="progress-bar">
-                                    <div class="progress-bar__fill" style="width: 33.3%"></div>
+                                    <div class="progress-bar__fill" style="width: {{ $lowPriorityTasks['total'] > 0 ? round(($lowPriorityTasks['completed'] / $lowPriorityTasks['total']) * 100) : 0 }}%"></div>
                                 </div>
                             </td>
                             <td class="table-cell">
