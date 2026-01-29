@@ -200,12 +200,12 @@
                         </tr>
                         <tr class="table-body-row">
                             <td class="table-cell"><span class="badge badge--medium">Medium Priority</span></td>
-                            <td class="table-cell font-bold text-lg">10</td>
-                            <td class="table-cell text-green-600 dark:text-green-400 font-semibold">5</td>
-                            <td class="table-cell text-orange-600 dark:text-orange-400 font-semibold">5</td>
+                            <td class="table-cell font-bold text-lg">{{ $mediumPriorityTasks['total'] }}</td>
+                            <td class="table-cell text-green-600 dark:text-green-400 font-semibold">{{ $mediumPriorityTasks['completed'] }}</td>
+                            <td class="table-cell text-orange-600 dark:text-orange-400 font-semibold">{{ $mediumPriorityTasks['pending'] }}</td>
                             <td class="table-cell">
                                 <div class="progress-bar">
-                                    <div class="progress-bar__fill" style="width: 50%"></div>
+                                    <div class="progress-bar__fill" style="width: {{ $mediumPriorityTasks['total'] > 0 ? round(($mediumPriorityTasks['completed'] / $mediumPriorityTasks['total']) * 100) : 0 }}%"></div>
                                 </div>
                             </td>
                             <td class="table-cell">
