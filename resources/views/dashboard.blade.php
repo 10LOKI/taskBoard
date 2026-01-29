@@ -195,7 +195,7 @@
                                 </div>
                             </td>
                             <td class="table-cell">
-                                <button class="btn btn--primary btn--xs">View</button>
+                                <a href="{{ route('tasks.index') }}" class="btn btn--primary btn--xs">View</a>
                             </td>
                         </tr>
                         <tr class="table-body-row">
@@ -209,7 +209,7 @@
                                 </div>
                             </td>
                             <td class="table-cell">
-                                <button class="btn btn--primary btn--xs">View</button>
+                                <a href="{{ route('tasks.index') }}" class="btn btn--primary btn--xs">View</a>
                             </td>
                         </tr>
                         <tr class="table-body-row">
@@ -223,7 +223,7 @@
                                 </div>
                             </td>
                             <td class="table-cell">
-                                <button class="btn btn--primary btn--xs">View</button>
+                                <a href="{{ route('tasks.index') }}" class="btn btn--primary btn--xs">View</a>
                             </td>
                         </tr>
                         </tbody>
