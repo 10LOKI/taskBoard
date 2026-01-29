@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('description');
-            $table->dateTime('deadline');
+            $table->text('description')->nullable();
+            $table->date('deadline')->nullable();
             $table->enum('priority',['low','medium','high']);
-            $table->enum('status',['pending','completed']);
+            $table->enum('status',['todo','in_progress','done']);
             $table->foreignId('user_id')->constrained();
             $table->timestamps();
             $table->softDeletes();

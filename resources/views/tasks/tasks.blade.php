@@ -538,34 +538,52 @@
         // ==================== FORM SUBMISSIONS ====================
         taskForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            console.log('Form submitted');
 
             const formData = new FormData(taskForm);
-            const url = currentTaskId
-                ? `/tasks/${currentTaskId}`
-                : '/tasks';
+            const data = {};
+
+            // Only include relevant fields
+            data.title = formData.get('title');
+            data.description = formData.get('description') || null;
+            data.priority = formData.get('priority');
+            data.status = formData.get('status');
+            data.deadline = formData.get('deadline') || null;
+
+            console.log('Data to send:', data);
+
+            const url = currentTaskId ? `/tasks/${currentTaskId}` : '/tasks';
             const method = currentTaskId ? 'PUT' : 'POST';
+
+            console.log('URL:', url, 'Method:', method);
 
             try {
                 const response = await fetch(url, {
                     method: method,
                     headers: {
+                        'Content-Type': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': document.querySelector('[name="_token"]').value,
                     },
-                    body: formData
+                    body: JSON.stringify(data)
                 });
 
+                console.log('Response status:', response.status);
+                
                 if (response.ok) {
-                    const data = await response.json();
-                    showNotification(data.message || 'Task saved successfully!', 'success');
+                    const result = await response.json();
+                    console.log('Success result:', result);
+                    showNotification(result.message || 'Task saved successfully!', 'success');
                     closeTaskModal();
-                    location.reload(); // Reload to update the task list
+                    location.reload();
                 } else {
                     const error = await response.json();
+                    console.log('Error response:', error);
                     showNotification(error.message || 'Error saving task', 'error');
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Fetch error:', error);
                 showNotification('An error occurred', 'error');
             }
         });
@@ -744,7 +762,7 @@
 
         function updateTaskAttribute(e) {
             const taskId = e.target.dataset.taskId;
-            const field = e.target.name.split('-')[0]; // 'priority' or 'status'
+            const field = e.target.classList.contains('priority-select') ? 'priority' : 'status';
             const value = e.target.value;
 
             fetch(`/tasks/${taskId}/update-attribute`, {
@@ -762,8 +780,12 @@
                         allTasks[taskIndex][field] = value;
                     }
                     applyFilters();
+                    showNotification(`Task ${field} updated!`, 'success');
                 }
-            }).catch(error => console.error('Error:', error));
+            }).catch(error => {
+                console.error('Error:', error);
+                showNotification('Error updating task', 'error');
+            });
         }
 
         // ==================== DELETE OPERATIONS ====================
@@ -834,6 +856,31 @@
             statusFilter.value = '';
             sortDeadline.value = '';
             applyFilters();
+        });
+
+        // Add event listeners for existing table rows
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.priority-select').forEach(select => {
+                select.addEventListener('change', updateTaskAttribute);
+            });
+            
+            document.querySelectorAll('.status-select').forEach(select => {
+                select.addEventListener('change', updateTaskAttribute);
+            });
+            
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const taskId = e.target.dataset.id;
+                    openTaskModal(taskId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const taskId = e.target.dataset.id;
+                    openDeleteModal(taskId);
+                });
+            });
         });
 
         // Initial render
