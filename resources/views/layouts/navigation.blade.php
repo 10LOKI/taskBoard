@@ -27,29 +27,12 @@
                         </div>
                     </a>
 
-                    <a href="#"
+                    <a href="{{ route('tasks.index') }}"
                        class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.3A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13H5.5z"/>
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         Tasks
-                    </a>
-
-                    <a href="#"
-                       class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
-                        </svg>
-                        Analytics
-                    </a>
-
-                    <a href="#"
-                       class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M13 7H7v6h6V7z"/>
-                            <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2V2a1 1 0 112 0v1a2 2 0 012 2v2h1a2 2 0 110 4h-1v2h1a2 2 0 110 4h-1v2a2 2 0 01-2 2v1a1 1 0 11-2 0v-1h-2v1a1 1 0 11-2 0v-1h-2v1a1 1 0 11-2 0v-1a2 2 0 01-2-2v-2H3a2 2 0 110-4h1V9H3a2 2 0 110-4h1V3a2 2 0 012-2v-1z" clip-rule="evenodd"/>
-                        </svg>
-                        Calendar
                     </a>
                 </div>
             </div>
@@ -161,16 +144,8 @@
                 Dashboard
             </a>
 
-            <a href="#" class="block px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-medium transition-colors">
+            <a href="{{route('tasks.index')}}" class="@if(request()->routeIs('tasks.index')) bg-gray-100 dark:bg-gray-700 @else hover:bg-gray-100 dark:hover:bg-gray-700 @endif block px-4 py-2 rounded-lg text-gray-900 dark:text-white text-sm font-medium transition-colors">
                 Tasks
-            </a>
-
-            <a href="#" class="block px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-medium transition-colors">
-                Analytics
-            </a>
-
-            <a href="#" class="block px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-medium transition-colors">
-                Calendar
             </a>
 
             <div class="border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">

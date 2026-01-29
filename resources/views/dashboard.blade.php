@@ -109,7 +109,7 @@
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">📋 Recent Tasks</h3>
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Your active and upcoming tasks</p>
                     </div>
-                    <a href="#" class="btn btn--secondary btn--sm">View all →</a>
+                    <a href="{{route('tasks.index')}}" class="btn btn--secondary btn--sm">View all →</a>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -168,7 +168,7 @@
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">⚡ Tasks by Priority</h3>
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Organized by importance level</p>
                     </div>
-                    <a href="#" class="btn btn--secondary btn--sm">Manage →</a>
+                    <a href="{{route('tasks.index')}}" class="btn btn--secondary btn--sm">Manage →</a>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -238,7 +238,7 @@
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">🎯 Tasks by Status</h3>
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Categorized by current state</p>
                     </div>
-                    <a href="#" class="btn btn--secondary btn--sm">Details →</a>
+                    <a href="{{route('tasks.index')}}" class="btn btn--secondary btn--sm">Details →</a>
                 </div>
 
                 <div class="overflow-x-auto">
