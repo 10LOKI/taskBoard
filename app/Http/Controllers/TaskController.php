@@ -2,11 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\CreateTaskAction;
-use App\Actions\UpdateTaskAction;
-use App\Actions\DeleteTaskAction;
-use App\Actions\BulkCreateTasksAction;
-use App\Actions\UpdateTaskAttributeAction;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,68 +10,68 @@ class TaskController extends Controller
 {
     public function index()
     {
-        $tasks = Task::forUser()->orderBy('created_at', 'desc')->get();
-
+        $tasks = Task::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
         $totalTasks = $tasks->count();
-        $pendingCount = Task::forUser()->pending()->count();
-        $overdueCount = Task::forUser()->overdue()->count();
+        $pendingCount = $tasks->whereIn('status', ['todo', 'in_progress'])->count();
+        $overdueCount = $tasks->where('status', '!=', 'done')->filter(function($task) {
+            return $task->deadline && \Carbon\Carbon::parse($task->deadline)->isPast();
+        })->count();
 
         return view('tasks.tasks', compact('tasks', 'totalTasks', 'pendingCount', 'overdueCount'));
     }
-    
-    public function store(Request $request, CreateTaskAction $createTaskAction)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'priority' => 'required|in:low,medium,high',
-            'status' => 'required|in:todo,in_progress,done',
-            'deadline' => 'nullable|date'
-        ]);
-        
-        $createTaskAction->execute($validated);
-        
-        return response()->json(['message' => 'Task created successfully']);
-    }
-    
-    public function update(Request $request, Task $task, UpdateTaskAction $updateTaskAction)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'priority' => 'required|in:low,medium,high',
-            'status' => 'required|in:todo,in_progress,done',
-            'deadline' => 'nullable|date'
-        ]);
-        
-        $updateTaskAction->execute($task, $validated);
 
-        return response()->json(['message' => 'Task updated successfully']);
-    }
-    
-    public function destroy(Task $task, DeleteTaskAction $deleteTaskAction)
+    public function edit($id)
     {
-        $deleteTaskAction->execute($task);
-        return response()->json(['message' => 'Task deleted successfully']);
+        $task = Task::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        return response()->json($task);
     }
-    
-    public function bulkCreate(Request $request, BulkCreateTasksAction $bulkCreateTasksAction)
+
+    public function update(Request $request, $id)
     {
-        $tasks = $request->input('tasks');
-        $createdCount = $bulkCreateTasksAction->execute($tasks);
-        
-        return response()->json([
-            'message' => "Successfully created {$createdCount} tasks"
+        $task = Task::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+
+        $task->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'priority' => $request->priority,
+            'status' => $request->status,
+            'deadline' => $request->deadline,
         ]);
+
+        return response()->json(['success' => true, 'message' => 'Task updated successfully']);
     }
-    
-    public function updateAttribute(Request $request, Task $task, UpdateTaskAttributeAction $updateTaskAttributeAction)
+
+    public function destroy($id)
     {
-        $field = $request->has('priority') ? 'priority' : 'status';
-        $value = $request->input($field);
-        
-        $updateTaskAttributeAction->execute($task, $field, $value);
-        
-        return response()->json(['message'=> 'Task updated successfully']);
+        $task = Task::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        $task->delete();
+
+        return response()->json(['success' => true, 'message' => 'Task deleted successfully']);
+    }
+    public function archive($id)
+    {
+        $task = Task::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        $task->delete(); // Soft delete
+        return response()->json(['success' => true, 'message' => 'Task archived successfully']);
+    }
+
+    public function archived()
+    {
+        $archivedTasks = Task::onlyTrashed()->where('user_id', Auth::id())->orderBy('deleted_at', 'desc')->get();
+        return view('tasks.archived', compact('archivedTasks'));
+    }
+
+    public function restore($id)
+    {
+        $task = Task::onlyTrashed()->where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        $task->restore();
+        return response()->json(['success' => true, 'message' => 'Task restored successfully']);
+    }
+
+    public function forceDelete($id)
+    {
+        $task = Task::onlyTrashed()->where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        $task->forceDelete();
+        return response()->json(['success' => true, 'message' => 'Task permanently deleted']);
     }
 }

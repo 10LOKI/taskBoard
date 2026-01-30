@@ -28,4 +28,8 @@ Route::put('/tasks/{task}',[TaskController::class,'update']) -> middleware(['aut
 Route::delete('/tasks/{task}',[TaskController::class,'destroy']) -> middleware(['auth']);
 Route::post('/tasks/bulk-create',[TaskController::class,'bulkCreate']) -> middleware(['auth']);
 Route::patch('/tasks/{task}/update-attribute',[TaskController::class,'updateAttribute']) -> middleware(['auth']);
+Route::delete('/tasks/{id}/archive',[TaskController::class ,'archive']) -> name('tasks.archive');
+Route::get('/tasks/archived',[TaskController::class,'archived']) -> middleware(['auth']) -> name('tasks.archived');
+Route::post('/tasks/{id}/restore',[TaskController::class,'restore']) -> middleware(['auth']) -> name('tasks.restore');
+Route::delete('/tasks/{id}/force-delete',[TaskController::class,'forceDelete']) -> middleware(['auth']) -> name('tasks.force-delete');
 require __DIR__.'/auth.php';

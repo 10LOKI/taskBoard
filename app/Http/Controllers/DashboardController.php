@@ -67,6 +67,7 @@ class DashboardController extends Controller
                 'in_progress' => Task::where('user_id',$userId) -> where('status','in_progress') -> count(),
                 'done' => Task::where('user_id',$userId) -> where('status','done') -> count(),
                 'overdue' => Task::where('user_id', $userId) -> where('status','!=','done') -> where('deadline', '<', now()) -> count(),
+                'archived' => Task::onlyTrashed()->where('user_id', $userId)->count(),
             ];
         $recentTasks = Task::where('user_id',$userId) -> orderBy('created_at','desc') -> limit(5) -> get();
         $highPriorityTasks =

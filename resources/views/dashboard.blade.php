@@ -14,7 +14,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
 
             <!-- ======================== STATISTICS SECTION ======================== -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4">
                 <!-- Total Tasks Card -->
                 <div class="stat-card stat-card--blue">
                     <div class="stat-card__icon stat-card__icon--blue">
@@ -94,8 +94,22 @@
                     </div>
                     <div class="stat-card__content">
                         <p class="stat-card__label">Completion</p>
-                        <p class="stat-card__value">{{ $stats['total'] }}%</p>
+                        <p class="stat-card__value">{{ $stats['total'] > 0 ? round(($stats['done'] / $stats['total']) * 100) : 0 }}%</p>
                         <p class="stat-card__description">Progress rate</p>
+                    </div>
+                </div>
+
+                <!-- Archived Card -->
+                <div class="stat-card stat-card--gray">
+                    <div class="stat-card__icon stat-card__icon--gray">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                        </svg>
+                    </div>
+                    <div class="stat-card__content">
+                        <p class="stat-card__label">Archived</p>
+                        <p class="stat-card__value">{{ $stats['archived'] }}</p>
+                        <p class="stat-card__description">Soft deleted</p>
                     </div>
                 </div>
             </div>
@@ -145,8 +159,8 @@
                                 <td class="table-cell text-sm">{{ $task->deadline ? \Carbon\Carbon::parse($task->deadline)->format('M d') : 'No deadline' }}</td>
                                 <td class="table-cell">
                                     <div class="action-buttons">
-                                        <button class="action-btn action-btn--edit" title="Edit">✎</button>
-                                        <button class="action-btn action-btn--delete" title="Delete">✕</button>
+                                        <button class="action-btn action-btn--edit" onclick="editTask({{ $task->id }})" title="Edit">✎</button>
+                                        <button class="action-btn action-btn--delete" onclick="deleteTask({{ $task->id }})" title="Delete">✕</button>
                                     </div>
                                 </td>
                             </tr>
@@ -306,4 +320,115 @@
 
         </div>
     </div>
+
+    <!-- Edit Task Modal -->
+    <div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-96">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Edit Task</h3>
+            <form id="editForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Title</label>
+                    <input type="text" id="editTitle" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+                    <textarea id="editDescription" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Priority</label>
+                    <select id="editPriority" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+                    <select id="editStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="todo">To Do</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Deadline</label>
+                    <input type="date" id="editDeadline" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentTaskId = null;
+
+        function editTask(taskId) {
+            currentTaskId = taskId;
+            fetch(`/tasks/${taskId}/edit`)
+                .then(response => response.json())
+                .then(task => {
+                    document.getElementById('editTitle').value = task.title;
+                    document.getElementById('editDescription').value = task.description;
+                    document.getElementById('editPriority').value = task.priority;
+                    document.getElementById('editStatus').value = task.status;
+                    document.getElementById('editDeadline').value = task.deadline ? task.deadline.split(' ')[0] : '';
+                    document.getElementById('editModal').classList.remove('hidden');
+                    document.getElementById('editModal').classList.add('flex');
+                });
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                fetch(`/tasks/${taskId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            document.getElementById('editModal').classList.remove('flex');
+        }
+
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                title: document.getElementById('editTitle').value,
+                description: document.getElementById('editDescription').value,
+                priority: document.getElementById('editPriority').value,
+                status: document.getElementById('editStatus').value,
+                deadline: document.getElementById('editDeadline').value
+            };
+
+            fetch(`/tasks/${currentTaskId}`, {
+                method: 'PUT',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal();
+                    location.reload();
+                }
+            });
+        });
+    </script>
 </x-app-layout>
